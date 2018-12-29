@@ -3,6 +3,8 @@ namespace Lakipatel\DataTable;
 
 use Maatwebsite\Excel\Facades\Excel;
 
+use \Session;
+
 abstract class DataTable
 {
 
@@ -79,7 +81,17 @@ abstract class DataTable
     public final static function toJSON()
     {
         $returnData = ['total_pages' => 1, 'current_page' => 1, 'from' => 0, 'to' => 0, 'total_records' => 0, 'data' => []];
+        
+        if(request()->get('page') && request()->get('page')!=1){
+            \Session::put('toPage', request()->get('page'));
+        }
 
+        if(isset($extra_params['toPage'])) {
+            request()->offsetSet('page', session('toPage'));
+        } else {
+            request()->offsetSet('page',request()->get('page'));
+        }
+        
         request()->merge([
            'page' => ( !is_numeric(request()->get('page')) || request()->get('page') < 1 ) ? 1 : request()->get('page'),
            'limit' => ( !is_numeric(request()->get('limit')) || request()->get('limit') < 1 ) ? 10 : request()->get('limit'),
